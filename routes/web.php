@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Livewire\Product\Index as ProductIndex;
+use App\Http\Livewire\Product\Create as ProductCreate;
+use App\Http\Livewire\Product\Details as ProductDetails;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,10 +17,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
 
 Auth::routes();
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', ProductIndex::class)->name('home');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::middleware(['isAdmin'])->group(function () {
+        Route::get('/product/create', ProductCreate::class)->name('product.create');
+
+    });
+
+    Route::get('/product/details/{id}', ProductDetails::class)->name('product.details');
+
+});
