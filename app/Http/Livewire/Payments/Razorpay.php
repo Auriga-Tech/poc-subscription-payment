@@ -47,9 +47,9 @@ class Razorpay extends Component
         ];
         Invoice::create($invoice_data);
 
-        Session::flash('message', 'Order Created Successfully!'); 
+        Session::flash('message', 'Order Created Successfully! Please Pay your invoice.'); 
         Session::flash('alert-class', 'blue'); 
-        return redirect()->route('home');
+        return redirect()->route('home.orders');
     }
 
     public function render()

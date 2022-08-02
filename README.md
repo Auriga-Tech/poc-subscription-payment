@@ -1,64 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Subscription Payment
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This package is created using laravel 8, livewire, mysql and tailwind css. We have used cron job and task scheduling to handle 3rd party payment gateways(Stripe and razorpay).
 
-## About Laravel
+## Tech
+- [Laravel](https://laravel.com/docs/8.x/installation).
+- [Livewire](https://laravel-livewire.com//).
+- [Tailwind CSS](https://tailwindcss.com/).
+- Multiple back-ends for [session](https://laravel.com/docs/8.x/session) and [cache](https://laravel.com/docs/8.x/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/8.x/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/8.x/migrations).
+- [Robust background Task Scheduling](https://laravel.com/docs/8.x/scheduling).
+- [Stripe](https://stripe.com/docs/api).
+- [Razorpay](https://razorpay.com/docs/api).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Installation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Run these commands
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```sh
+cd poc-subscription-payment
+composer install
+npm install
+npm run dev
+php artisan key:generate
+```
 
-## Learning Laravel
+### For production environments 
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+set your database and file storage credentials in your env...
+```sh
+FILESYSTEM_DRIVER=public
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Laravel Sponsors
+set you payment credentials in your env...
+```sh
+RAZORPAY_KEY=
+RAZORPAY_SECRET=
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+STRIPE_KEY=
+STRIPE_SECRET=
+```
 
-### Premium Partners
+### Run these commands
+```sh
+php artisan config:cache
+php artisan migrate --seed
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## [Database Architecture](https://app.quickdatabasediagrams.com/#/d/0BycSy)
 
-## Contributing
+## Default Admin Credentials
+- These credentials are stored in UserSeeder.
+- Email: admin@gmail.com 
+- Password: password
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Modules
 
-## Code of Conduct
+### Roles
+- There will be 2 roles - Admin, Customer.
+- Admins will be able to manage products, orders and subscriptions.
+- Customers will be able to see all products and buy products based on a order mode or subscription payment mode.
+- The authentication method will be the by default method of laravel.
+- Users will include additional fields of billing address and stripe customer id.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Products
+- Products will include name, image, description, type(single or subscription), [stripe product id](https://stripe.com/docs/api/products), basic amount and country code.
+- Products have 2 subscription plans - Basic(default) and Pro.
+- Admin needs to add amount in every currency that they would like to use for a product.
+- Every time admin updates the amounts of the old products their subscription plans will be updated respectively but we have not implemented the update functionality for products.
+- Customer will select a dropdown of countries along with their price and based on that payment options will be shown.
 
-## Security Vulnerabilities
+### Prices
+- Every product has multiple prices.
+- These prices will be added in razorpay as [plans](https://razorpay.com/docs/api/payments/subscriptions#create-a-plan) for subscription and prices as [prices](https://stripe.com/docs/api/prices) in stripe.
+- Prices will include type which can be either Basic(for single payments and subscriptions) and Pro.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Subscriptions
+- Every subscription will be linked to a product and user.
+- Every subscription has plan type
+- We have used 2 subscription methods [Stripe](https://stripe.com/docs/api) and [Razorpay](https://razorpay.com/docs/api).
+	- Stripe
+		- There will be product and multiple prices of that product.
+		- Every subscription will be linked to a price.
+		- [Supported Currencies](https://stripe.com/docs/currencies).
+		- In case user upgrades the subscription plan if all the invoices are paid only then user can upgrade the subscription. We will remove the pevious price from that subscription and link the new price.
+		- In case user cancels the subscription if all the invoices are paid only then user can cancel the subscription.
+		- Status: Created(default), Active, Completed, Cancelled.
+	- Razorpay
+		- There will be plans based on price and product.
+		- Every subscription will be linked to a particular plan.
+		- [Supported Currencies](https://razorpay.com/docs/build/browser/assets/images/international-currency-list.xlsx) however you need to complete your KYC for using international currencies.
+		- In case user upgrades the subscription if all the charges have been collected till then and the subscription has status active only then plan we will update the plan id for that subscription.
+		- If you want to prvide option to upgrade then the upi option needs to be stoped from razorpay account.
+		- In case user cancels the subscription if all the charges have been collected till then and the subscription has status active only then user can cancel the subscription.
+		- Status: Created(default), Active, Completed, Cancelled, Hold.
+		- The subscription moves to hold if razorpay fails to capture a charge after the attempts have expired. In this case the user will have to add another payment method.
 
-## License
+### Orders
+- Every order will be linked to a product and user.
+- Status: Created(default), Completed, Cancelled.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Invoices
+- Every invoice will be linked to a subscription or order.
+- Subscriptions
+	- Stripe
+		- The invoices will be created using cron job every hour.
+		- The invoice status will update after every 5 minutes.
+		- Every invoice has stripe invoice id provided by the subscription.
+	- Razorpay
+		- Razorpay does not issues invoices for subscriptions.
+- Orders
+	- Stripe
+		- The invoice will be created on every order.
+		- The invoice status will update after every 5 minutes.
+		- Every invoice has stripe invoice id provided by the order.
+	- Razorpay
+		- The invoice will be created on every order.
+		- The invoice status will update after every 5 minutes.
+		- Every invoice has razorpay invoice id provided by the order.

@@ -68,7 +68,7 @@ class Razorpay extends Component
             Session::flash('alert-class', 'red'); 
         }
 
-        return redirect()->route(['home.subscriptions.details', ['sid' => $subscription->id]]);
+        return redirect()->route('home.subscriptions.details', ['sid' => $subscription->id]);
 
     }
 }

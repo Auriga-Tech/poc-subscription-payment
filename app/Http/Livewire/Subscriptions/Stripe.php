@@ -11,6 +11,7 @@ use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
+use App\Models\Invoice;
 
 class Stripe extends Component
 {
@@ -79,7 +80,7 @@ class Stripe extends Component
         Session::flash('message', 'Subscription Created Successfully. Please pay your invoice.'); 
         Session::flash('alert-class', 'blue'); 
 
-        return redirect()->route(['home.subscriptions.details', ['sid' => $subscription->id]]);
+        return redirect()->route('home.subscriptions.details', ['sid' => $subscription->id]);
     }
 
     public function changeValidation()
