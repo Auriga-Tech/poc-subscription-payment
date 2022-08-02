@@ -7,12 +7,15 @@ use App\Models\Product;
 
 class Index extends Component
 {
-    protected $products;
-    public function render()
+    public $products;
+
+    public function mount()
     {
         $this->products = Product::all();
-        return view('livewire.product.index', [
-            'products' => $this->products
-        ]);
+    }
+
+    public function render()
+    {
+        return view('livewire.product.index');
     }
 }

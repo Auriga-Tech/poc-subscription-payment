@@ -7,9 +7,11 @@
                     <h1 class="text-gray-900 text-3xl title-font font-medium mb-1">{{ $product->name }}</h1>
                     <p class="leading-relaxed">{{ $product->description }}</p>
                     <div class="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
-                        <div class="flex">
-                            <span class="mr-3">Expiry Days: {{ $product->expiry_date }} days</span>
-                        </div>
+                        @if ($product->type == 2)
+                            <div class="flex">
+                                <span class="mr-3">Subscription ends after 1 year.</span>
+                            </div>
+                        @endif
                         <div class="flex ml-6 items-center">
                             <span class="mr-3">Select Your Country</span>
                             <div class="relative">
@@ -27,8 +29,44 @@
                         </div>
                     </div>
                     <div class="flex">
-                        <span class="title-font font-medium text-2xl text-gray-900">{{ $symbol.''.$price }}</span>
-                        <button class="flex ml-auto text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded">Button</button>
+                        <span class="title-font font-medium text-2xl text-gray-900">
+                            {{ $symbol.''.$price }}
+                            @if ($product->type == 2)
+                                per month
+                            @endif
+                        </span>
+                        <button class="flex ml-auto text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded" wire:click="showPaymentOptions">
+                            @if ($product->type == 1)
+                                Buy Now
+                            @else
+                                Buy Subscription                                
+                            @endif
+                        </button>
+                    </div>
+                    <div class="flex mt-5">
+                        @if ($product->type == 1)
+                            @if ($show_razorpay)
+                                <a href="{{ route('buy-product.razorpay-payment', ['id' => $product->id, 'code' => $code]) }}" class="flex text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded">
+                                    Razorpay
+                                </a>
+                            @endif
+                            @if ($show_stripe)
+                                <a href="{{ route('buy-product.stripe-payment', ['id' => $product->id, 'code' => $code]) }}" class="flex ml-5 text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded">
+                                    Stripe
+                                </a>
+                            @endif
+                        @else
+                            @if ($show_razorpay)
+                                <a href="{{ route('buy-product.razorpay-subscription', ['id' => $product->id, 'code' => $code]) }}" class="flex text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded">
+                                    Razorpay
+                                </a>
+                            @endif
+                            @if ($show_stripe)
+                                <a href="{{ route('buy-product.stripe-subscription', ['id' => $product->id, 'code' => $code]) }}" class="flex ml-5 text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded">
+                                    Stripe
+                                </a>
+                            @endif                           
+                        @endif
                     </div>
                 </div>
             </div>

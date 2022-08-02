@@ -18,18 +18,26 @@ class Product extends Model
         'type',
         'basic_amount',
         'country_code',
-        'expiry_date'
+        'stripe_product_id'
     ];
 
     protected $appends = [
         'image_url'
     ];
+
+    public function getImageUrlAttribute() {
+        return config('app.url').'/storage/'.$this->image;
+    }
     
     public function prices() {
         return $this->hasMany(Prices::class);
     }
-
-    public function getImageUrlAttribute() {
-        return config('app.url').'/storage/'.$this->image;
+    
+    public function subscriptions() {
+        return $this->hasMany(Subscription::class);
+    }
+    
+    public function orders() {
+        return $this->hasMany(Order::class);
     }
 }

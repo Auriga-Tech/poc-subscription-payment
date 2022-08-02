@@ -7,11 +7,13 @@ use Livewire\WithFileUploads;
 use App\Models\Product;
 use App\Models\Prices;
 use Illuminate\Support\Facades\Session;
+use App\Helpers\RazorpayHelper;
+use App\Helpers\StripeHelper;
 
 class Create extends Component
 {
     use WithFileUploads;
-    public $product_name = '', $product_image = '', $product_description = '', $product_type = 1, $prices = [], $basic_amount = 0, $expiry_date = '';
+    public $product_name = '', $product_image = '', $product_description = '', $product_type = 1, $prices = [], $basic_amount = 0;
 
     protected $rules = [], $messages = [];
 
@@ -39,17 +41,21 @@ class Create extends Component
         $this->changeValidation();
         $this->validate($this->rules, $this->messages);
 
+        $stripe = new StripeHelper();
+        $stripe_product_id = $stripe->createProduct($this->product_name)->id;
+
         $product_data = [
+            'stripe_product_id' => $stripe_product_id,
             'name' => $this->product_name,
             'image' => $this->product_image->store('Products'),
             'description' => $this->product_description,
             'type' => $this->product_type,
-            'expiry_date' => $this->expiry_date,
             'basic_amount' => $this->prices['basic'][$this->basic_amount]['price'],
             'country_code' => $this->prices['basic'][$this->basic_amount]['code'],
         ];
         $product = Product::create($product_data);
 
+        $razorpay = new RazorpayHelper();
         foreach ($this->prices['basic'] as $key => $item) {
             $price_data = [
                 'product_id' => $product->id,
@@ -57,6 +63,17 @@ class Create extends Component
                 'amount' => $item['price'],
                 'country_code' => $item['code'],
             ];
+            if($this->product_type == 2) {
+                if($item['code'] == 'INR') {
+                    $response = $razorpay->createPlan($this->product_name.' - Basic', $item['price'], $item['code']);
+                    $price_data['razorpay_price_id'] = $response->id;
+                }
+                $response = $stripe->createPrice($item['price'], $item['code'], $stripe_product_id, 'Basic', true);
+                $price_data['stripe_price_id'] = $response->id;
+            } else {
+                $response = $stripe->createPrice($item['price'], $item['code'], $stripe_product_id, 'Basic');
+                $price_data['stripe_price_id'] = $response->id;
+            }
             Prices::create($price_data);
         }
 
@@ -64,10 +81,18 @@ class Create extends Component
             foreach ($this->prices['pro'] as $key => $item) {
                 $price_data = [
                     'product_id' => $product->id,
-                    'type' => 1,
+                    'type' => 2,
                     'amount' => $item['price'],
                     'country_code' => $item['code'],
                 ];
+                if($this->product_type == 2) {
+                    if($item['code'] == 'INR') {
+                        $response = $razorpay->createPlan($this->product_name.' - Pro', $item['price'], $item['code']);
+                        $price_data['razorpay_price_id'] = $response->id;
+                    }
+                    $response = $stripe->createPrice($item['price'], $item['code'], $stripe_product_id, 'Pro', true);
+                    $price_data['stripe_price_id'] = $response->id;
+                }
                 Prices::create($price_data);
             }
         }
@@ -84,7 +109,6 @@ class Create extends Component
             'product_image' => 'required|mimes:jpeg,jpg,png',
             'product_description' => 'required|string|min:10',
             'prices.basic.*.price' => 'required|numeric|gt:0',
-            'expiry_date' => 'required|numeric|gt:0'
         ];
         if($this->product_type == 2) {
             $this->rules['prices.pro.*.price'] = 'required|numeric|gt:0';

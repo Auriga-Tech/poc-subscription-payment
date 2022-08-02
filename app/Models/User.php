@@ -24,7 +24,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'stripe_customer_id'
+        'stripe_customer_id',
+        'address_line',
+        'postal_code',
+        'city',
+        'state',
+        'country'
     ];
 
     /**
@@ -47,7 +52,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'is_admin', 'is_user'
+        'is_admin', 'is_user', 'has_subscriptions'
     ];
 
     public function getIsAdminAttribute() {
@@ -62,5 +67,20 @@ class User extends Authenticatable
             return true;
         }
         return false;
+    }
+
+    public function getHasSubscriptionsAttribute() {
+        if($this->subscriptions->count() > 0) {
+            return true;
+        }
+        return false;
+    }
+    
+    public function subscriptions() {
+        return $this->hasMany(Subscription::class);
+    }
+    
+    public function orders() {
+        return $this->hasMany(Order::class);
     }
 }
