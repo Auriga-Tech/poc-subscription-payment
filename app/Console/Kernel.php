@@ -22,8 +22,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('stripe:create-invoices')->hourly();
-        $schedule->command('stripe:update-invoice-status')->everyFiveMinutes();
-        $schedule->command('razorpay:update-invoice-status')->everyFiveMinutes();
+        $schedule->command('stripe:update-invoice-status')->everyMinute();
+        $schedule->command('razorpay:update-invoice-status')->everyMinute();
     }
 
     /**
