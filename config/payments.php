@@ -5,22 +5,26 @@ return [
         [
             'name' => 'India',
             'code' => 'INR',
-            'symbol' => '₹'
+            'symbol' => '₹',
+            'payment_country_code' => 'IN'
         ],
         [
             'name' => 'USA',
             'code' => 'USD',
-            'symbol' => '$'
+            'symbol' => '$',
+            'payment_country_code' => 'US'
         ],
         [
             'name' => 'UK',
             'code' => 'GBP',
-            'symbol' => '£'
+            'symbol' => '£',
+            'payment_country_code' => 'GB'
         ],
         [
             'name' => 'Canada',
             'code' => 'CAD',
-            'symbol' => '$'
+            'symbol' => '$',
+            'payment_country_code' => 'IN'
         ],
     ],
 ];

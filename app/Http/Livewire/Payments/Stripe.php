@@ -34,6 +34,11 @@ class Stripe extends Component
             'exp_year' => '',
             'cvc' => '',
         ];
+        foreach (config('payments.countries') as $item) {
+            if($item['code'] == $code) {
+                $this->country = $item['payment_country_code'];
+            }
+        }
     }
     
     public function render()
