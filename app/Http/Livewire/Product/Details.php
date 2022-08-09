@@ -9,13 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class Details extends Component
 {
-    public $product, $symbol = '', $price = '', $countries = [], $code = '', $show_razorpay = false, $show_stripe = false;
+    public $product, $symbol = '', $price = '', $countries = [], $code = '', $show_razorpay = false, $show_stripe = false, $show_prices = true;
 
     public function mount($id)
     {
         $this->product = Product::where('id', $id)
             ->first();
         $this->code = $this->product->country_code;
+        if(Auth::User()->global_country != NULL) {
+            $this->code = Auth::User()->global_country;
+            $this->show_prices = false;
+        }
         $this->setAmounts();
     }
 

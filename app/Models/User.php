@@ -52,7 +52,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'is_admin', 'is_user', 'has_subscriptions'
+        'is_admin', 'is_user', 'has_subscriptions', 'global_country'
     ];
 
     public function getIsAdminAttribute() {
@@ -74,6 +74,15 @@ class User extends Authenticatable
             return true;
         }
         return false;
+    }
+
+    public function getGlobalCountryAttribute() {
+        if($this->subscriptions->count() > 0) {
+            return $this->subscriptions[0]->country_code;
+        } else if($this->orders->count() > 0) {
+            return $this->orders[0]->country_code;
+        }
+        return NULL;
     }
     
     public function subscriptions() {
